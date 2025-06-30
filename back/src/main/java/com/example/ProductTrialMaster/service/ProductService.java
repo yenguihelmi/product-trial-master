@@ -1,61 +1,69 @@
 package com.example.ProductTrialMaster.service;
 
+import com.example.ProductTrialMaster.dto.ProductDto;
 import com.example.ProductTrialMaster.entity.Product;
+import com.example.ProductTrialMaster.exception.ProductNotFoundException;
 import com.example.ProductTrialMaster.repository.ProductRepository;
-import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
-import java.util.Objects;
 
+/**
+ * ProductService class for managing product operations such as retrieving, creating, updating, and deleting products.
+ * Provides methods to manipulate product data.
+ */
 @Service
 @RequiredArgsConstructor
 public class ProductService {
-
     private final ProductRepository productRepository;
-
-
 
     public List<Product> getAllProducts() {
         return productRepository.findAll();
     }
 
-    public Product createProduct(Product product) {
+    public Product getProductById(Long id) {
+        return productRepository.findById(id)
+                .orElseThrow(() -> new ProductNotFoundException("Product not found with id: " + id));
+    }
+
+    public Product createProduct(ProductDto productDto) {
+        Product product = Product.builder()
+                .code(productDto.getCode())
+                .name(productDto.getName())
+                .description(productDto.getDescription())
+                .image(productDto.getImage())
+                .category(productDto.getCategory())
+                .price(productDto.getPrice())
+                .quantity(productDto.getQuantity())
+                .internalReference(productDto.getInternalReference())
+                .shellId(productDto.getShellId())
+                .inventoryStatus(productDto.getInventoryStatus())
+                .rating(productDto.getRating())
+                .build();
+
         return productRepository.save(product);
     }
 
-    public Product getProductById(Long id) {
-        return productRepository.findById(id)
-                .orElseThrow(() -> new EntityNotFoundException("Produit non trouvé avec l'id: " + id));
-    }
+    public Product updateProduct(Long id, ProductDto productDto) {
+        Product existingProduct = getProductById(id);
 
-    @Transactional
-    public Product updateProduct(Long id, Product updatedProduct) {
-        Product existing = getProductById(id);
+        existingProduct.setCode(productDto.getCode());
+        existingProduct.setName(productDto.getName());
+        existingProduct.setDescription(productDto.getDescription());
+        existingProduct.setImage(productDto.getImage());
+        existingProduct.setCategory(productDto.getCategory());
+        existingProduct.setPrice(productDto.getPrice());
+        existingProduct.setQuantity(productDto.getQuantity());
+        existingProduct.setInternalReference(productDto.getInternalReference());
+        existingProduct.setShellId(productDto.getShellId());
+        existingProduct.setInventoryStatus(productDto.getInventoryStatus());
+        existingProduct.setRating(productDto.getRating());
 
-        if (updatedProduct.getCode() != null) existing.setCode(updatedProduct.getCode());
-        if (updatedProduct.getName() != null) existing.setName(updatedProduct.getName());
-        if (updatedProduct.getDescription() != null) existing.setDescription(updatedProduct.getDescription());
-        if (updatedProduct.getImage() != null) existing.setImage(updatedProduct.getImage());
-        if (updatedProduct.getCategory() != null) existing.setCategory(updatedProduct.getCategory());
-        if (updatedProduct.getPrice() != null) existing.setPrice(updatedProduct.getPrice());
-        if (updatedProduct.getQuantity() != null) existing.setQuantity(updatedProduct.getQuantity());
-        if (updatedProduct.getInternalReference() != null) existing.setInternalReference(updatedProduct.getInternalReference());
-        if (updatedProduct.getShellId() != null) existing.setShellId(updatedProduct.getShellId());
-        if (updatedProduct.getInventoryStatus() != null) existing.setInventoryStatus(updatedProduct.getInventoryStatus());
-        if (updatedProduct.getRating() != null) existing.setRating(updatedProduct.getRating());
-        if (updatedProduct.getCreatedAt() != null) existing.setCreatedAt(updatedProduct.getCreatedAt());
-        if (updatedProduct.getUpdatedAt() != null) existing.setUpdatedAt(updatedProduct.getUpdatedAt());
-
-        return productRepository.save(existing);
+        return productRepository.save(existingProduct);
     }
 
     public void deleteProduct(Long id) {
-        if (!productRepository.existsById(id)) {
-            throw new EntityNotFoundException("Produit non trouvé avec l'id: " + id);
-        }
         productRepository.deleteById(id);
     }
 }

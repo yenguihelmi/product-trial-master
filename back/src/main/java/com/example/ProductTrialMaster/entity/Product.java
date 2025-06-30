@@ -5,15 +5,17 @@ import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import org.hibernate.annotations.CreationTimestamp;
+import org.hibernate.annotations.UpdateTimestamp;
 
+import java.time.LocalDateTime;
 
 @Entity
 @Data
-@Builder
-@AllArgsConstructor
 @NoArgsConstructor
+@AllArgsConstructor
+@Builder
 public class Product {
-
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
@@ -23,19 +25,20 @@ public class Product {
     private String description;
     private String image;
     private String category;
-    private Double price;
-    private Integer quantity;
+    private double price;
+    private int quantity;
     private String internalReference;
     private Long shellId;
 
     @Enumerated(EnumType.STRING)
     private InventoryStatus inventoryStatus;
 
-    private Integer rating;
-    private Long createdAt;
-    private Long updatedAt;
+    private int rating;
 
-    public enum InventoryStatus {
-        INSTOCK, LOWSTOCK, OUTOFSTOCK
-    }
+    @CreationTimestamp
+    private LocalDateTime createdAt;
+
+    @UpdateTimestamp
+    private LocalDateTime updatedAt;
 }
+
